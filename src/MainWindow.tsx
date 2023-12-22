@@ -9,7 +9,13 @@ const MainWindow: FunctionComponent = () => {
   useEffect(() => {
     const sd = localStorage.getItem("spotifyData");
     if (sd) {
-      setSpotifyStreamingData(JSON.parse(sd));
+      try {
+        setSpotifyStreamingData(JSON.parse(sd));
+      }
+      catch (e) {
+        console.error(e);
+        console.warn('Problem parsing spotify data from local storage')
+      }
     }
   }, []);
 
@@ -24,7 +30,14 @@ const MainWindow: FunctionComponent = () => {
         reader.onload = () => {
           const result = reader.result;
           if (typeof result === "string") {
-            const data = JSON.parse(result);
+            let data
+            try {
+              data = JSON.parse(result);
+            }
+            catch (e) {
+              console.error(e);
+              console.warn('Problem parsing spotify data from file')
+            }
             localStorage.setItem("spotifyData", JSON.stringify(data));
             setSpotifyStreamingData(data);
           }
