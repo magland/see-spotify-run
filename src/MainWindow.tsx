@@ -1,6 +1,7 @@
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import SpotifyStreamingData from "./SpotifyStreamingData";
 import FunkyView1 from "./FunkyView1";
+import { useWindowDimensions } from "@fi-sci/misc";
 
 const MainWindow: FunctionComponent = () => {
   const [spotifyStreamingData, setSpotifyStreamingData] =
@@ -39,10 +40,15 @@ const MainWindow: FunctionComponent = () => {
     setSpotifyStreamingData(undefined);
   }, []);
 
+  const {width, height} = useWindowDimensions();
+
   if (!spotifyStreamingData) {
     return (
-      <div>
-        <button onClick={handleUpload}>Upload spotify streaming data</button>
+      <div style={{position: 'absolute', width, height}}>
+        {/* Centered */}
+        <div style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}}>
+          <button onClick={handleUpload}>Upload spotify streaming data</button>
+        </div>
       </div>
     );
   }

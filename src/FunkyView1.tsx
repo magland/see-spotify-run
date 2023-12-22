@@ -47,6 +47,8 @@ const funkyView1Reducer = (state: State, action: Action): State => {
     switch (action.type) {
         case 'evolve': {
             const elapsed = (Date.now() - state.lastUpdated) / 1000;
+            const W = Math.min(Math.max(action.width, 700), 1200);
+            const H = Math.min(Math.max(action.height, 700), 1200);
             return {
                 ...state,
                 items: state.items.map(item => {
@@ -58,8 +60,8 @@ const funkyView1Reducer = (state: State, action: Action): State => {
                         position: newPosition
                     };
                 }).filter(item => {
-                    if ((item.position[0] < -action.width / 2 || item.position[0] > action.width / 2) ||
-                        (item.position[1] < -action.height / 2 || item.position[1] > action.height / 2)) {
+                    if ((item.position[0] < -W / 2 || item.position[0] > H / 2) ||
+                        (item.position[1] < -W / 2 || item.position[1] > H / 2)) {
                         return false;
                     }
                     return true;
