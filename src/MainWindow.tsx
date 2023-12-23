@@ -2,6 +2,7 @@ import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import SpotifyStreamingData from "./SpotifyStreamingData";
 import FunkyView1 from "./FunkyView1";
 import { useWindowDimensions } from "@fi-sci/misc";
+import FunkyView2 from "./FunkyView2";
 
 const MainWindow: FunctionComponent = () => {
   const [spotifyStreamingData, setSpotifyStreamingData] =
@@ -18,6 +19,8 @@ const MainWindow: FunctionComponent = () => {
       }
     }
   }, []);
+
+  const [mode, setMode] = useState<'funky-view-1' | 'funky-view-2'>('funky-view-1');
 
   const handleUpload = useCallback(() => {
     const input = document.createElement("input");
@@ -55,6 +58,11 @@ const MainWindow: FunctionComponent = () => {
 
   const {width, height} = useWindowDimensions();
 
+  const handleSkip = useCallback(() => {
+    console.log('skip');
+    setMode('funky-view-2');
+  }, []);
+
   if (!spotifyStreamingData) {
     return (
       <div style={{position: 'absolute', width, height}}>
@@ -66,9 +74,16 @@ const MainWindow: FunctionComponent = () => {
     );
   }
 
-  return (
-    <FunkyView1 spotifyStreamingData={spotifyStreamingData} onDelete={handleDelete} />
-  )
+  if (mode === 'funky-view-2') {
+    return (
+      <FunkyView2 spotifyStreamingData={spotifyStreamingData} />
+    );
+  }
+  else {
+    return (
+      <FunkyView1 spotifyStreamingData={spotifyStreamingData} onDelete={handleDelete} onSkip={handleSkip} />
+    )
+  }
 };
 
 export default MainWindow;
