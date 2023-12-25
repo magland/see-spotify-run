@@ -186,7 +186,7 @@ const FunkyView1: FunctionComponent<FunkyView1Props> = ({spotifyStreamingData, o
                         // font size depends on z position
                         fontSize: 20 * (1 + item.position[2] / 1000),
                     }}>
-                        {item.name}
+                        {item.name.split('|')[1]}
                     </div>
                 ))
             }
