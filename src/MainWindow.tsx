@@ -1,12 +1,33 @@
-import { FunctionComponent, useCallback, useEffect, useState } from "react";
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import SpotifyStreamingData from "./SpotifyStreamingData";
 import FunkyView1 from "./FunkyView1";
 import { useWindowDimensions } from "@fi-sci/misc";
 import FunkyView2 from "./FunkyView2";
 
+export type TimeFilter = {
+  use: boolean
+  beginDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+};
+
+export const timeFilterIncludes = (timeFilter: TimeFilter, date: string) => {
+  if (!timeFilter.use) {
+      return true;
+  }
+  const date0 = date.split(' ')[0];
+  if (date0 < timeFilter.beginDate) {
+      return false;
+  }
+  if (date0 > timeFilter.endDate) {
+      return false;
+  }
+  return true;
+}
+
 const MainWindow: FunctionComponent = () => {
   const [spotifyStreamingData, setSpotifyStreamingData] =
     useState<SpotifyStreamingData>();
+  const [timeFilter, setTimeFilter] = useState<TimeFilter | undefined>(undefined);
   useEffect(() => {
     const sd = localStorage.getItem("spotifyData");
     if (sd) {
@@ -20,7 +41,7 @@ const MainWindow: FunctionComponent = () => {
     }
   }, []);
 
-  const [mode, setMode] = useState<'funky-view-1' | 'funky-view-2'>('funky-view-1');
+  const [mode, setMode] = useState<'funky-view-1' | 'funky-view-2'>('funky-view-2');
 
   const handleUpload = useCallback(() => {
     const input = document.createElement("input");
@@ -58,10 +79,19 @@ const MainWindow: FunctionComponent = () => {
 
   const {width, height} = useWindowDimensions();
 
-  const handleSkip = useCallback(() => {
-    console.log('skip');
+  const handleExit = useCallback(() => {
     setMode('funky-view-2');
   }, []);
+
+  const spotifyStreamingDataFiltered = useMemo(() => {
+    if (!spotifyStreamingData) {
+      return undefined;
+    }
+    if (!timeFilter) {
+      return spotifyStreamingData;
+    }
+    return spotifyStreamingData.filter((item) => timeFilterIncludes(timeFilter, item.endTime));
+  }, [spotifyStreamingData, timeFilter]);
 
   if (!spotifyStreamingData) {
     return (
@@ -76,12 +106,12 @@ const MainWindow: FunctionComponent = () => {
 
   if (mode === 'funky-view-2') {
     return (
-      <FunkyView2 spotifyStreamingData={spotifyStreamingData} />
+      <FunkyView2 spotifyStreamingData={spotifyStreamingData} onTimeFilterChanged={setTimeFilter} onBlastOff={() => setMode('funky-view-1')} />
     );
   }
   else {
     return (
-      <FunkyView1 spotifyStreamingData={spotifyStreamingData} onDelete={handleDelete} onSkip={handleSkip} />
+      spotifyStreamingDataFiltered ? <FunkyView1 spotifyStreamingData={spotifyStreamingDataFiltered} onDelete={handleDelete} onExit={handleExit} /> : <span />
     )
   }
 };

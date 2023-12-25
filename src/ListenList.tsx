@@ -11,7 +11,7 @@ type ListenListProps = {
 
 const ListenList: FunctionComponent<ListenListProps> = ({spotifyStreamingData, width, height, selectedSongs}) => {
     const listens = useMemo(() => {
-        return spotifyStreamingData.filter((item) => selectedSongs.length === 0 || selectedSongs.includes(item.artistName + '|' + item.trackName));
+        return spotifyStreamingData.filter((item) => selectedSongs.includes(item.artistName + '|' + item.trackName));
     }, [spotifyStreamingData, selectedSongs]);
     const items = useMemo(() => {
         return listens.map((listen, i) => ({

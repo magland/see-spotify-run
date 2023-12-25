@@ -5,7 +5,7 @@ import { useWindowDimensions } from "@fi-sci/misc";
 type FunkyView1Props = {
     spotifyStreamingData: SpotifyStreamingData;
     onDelete: () => void;
-    onSkip: () => void;
+    onExit: () => void;
 };
 
 type Item = {
@@ -123,7 +123,7 @@ const funkyView1Reducer = (state: State, action: Action): State => {
     }
 }
 
-const FunkyView1: FunctionComponent<FunkyView1Props> = ({spotifyStreamingData, onDelete, onSkip}) => {
+const FunkyView1: FunctionComponent<FunkyView1Props> = ({spotifyStreamingData, onDelete, onExit}) => {
     const [state, dispatch] = useReducer(funkyView1Reducer, defaultState)
 
     useEffect(() => {
@@ -191,13 +191,13 @@ const FunkyView1: FunctionComponent<FunkyView1Props> = ({spotifyStreamingData, o
                     </div>
                 ))
             }
-            <StatusBar currentDate={currentDate} maxArtist={maxArtist} width={width} />
-            <BottomBar width={width} top={height - 30} onDelete={onDelete} onSkip={onSkip} />
+            <StatusBar currentDate={currentDate} maxArtist={maxArtist} width={width} onExit={onExit} />
+            <BottomBar width={width} top={height - 30} onDelete={onDelete} />
         </div>
     );
 };
 
-const StatusBar: FunctionComponent<{currentDate: string | null, maxArtist: string, width: number}> = ({currentDate, maxArtist, width}) => {
+const StatusBar: FunctionComponent<{currentDate: string | null, maxArtist: string, width: number, onExit: () => void}> = ({currentDate, maxArtist, width, onExit}) => {
     return (
         <div style={{
             position: 'absolute',
@@ -212,6 +212,8 @@ const StatusBar: FunctionComponent<{currentDate: string | null, maxArtist: strin
             justifyContent: 'center',
             alignItems: 'center',
         }}>
+            <a href="#" onClick={onExit}>exit</a>
+            &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
             {currentDate}
             &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
             <span style={{color: colorForArtist(maxArtist)}}>
@@ -221,7 +223,7 @@ const StatusBar: FunctionComponent<{currentDate: string | null, maxArtist: strin
     )
 }
 
-const BottomBar: FunctionComponent<{width: number, top: number, onDelete: () => void, onSkip: () => void}> = ({width, top, onDelete, onSkip}) => {
+const BottomBar: FunctionComponent<{width: number, top: number, onDelete: () => void}> = ({width, top, onDelete}) => {
     return (
         <div style={{
             position: 'absolute',
@@ -239,8 +241,6 @@ const BottomBar: FunctionComponent<{width: number, top: number, onDelete: () => 
             <a href="#" onClick={() => window.location.reload()}>reload</a>
             &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
             <a href="#" onClick={onDelete}>delete</a>
-            &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-            <a href="#" onClick={onSkip}>skip</a>
         </div>
     )
 }
