@@ -4,7 +4,6 @@ import { useWindowDimensions } from "@fi-sci/misc";
 
 type FunkyView1Props = {
     spotifyStreamingData: SpotifyStreamingData;
-    onDelete: () => void;
     onExit: () => void;
 };
 
@@ -123,7 +122,7 @@ const funkyView1Reducer = (state: State, action: Action): State => {
     }
 }
 
-const FunkyView1: FunctionComponent<FunkyView1Props> = ({spotifyStreamingData, onDelete, onExit}) => {
+const FunkyView1: FunctionComponent<FunkyView1Props> = ({spotifyStreamingData, onExit}) => {
     const [state, dispatch] = useReducer(funkyView1Reducer, defaultState)
 
     useEffect(() => {
@@ -192,7 +191,6 @@ const FunkyView1: FunctionComponent<FunkyView1Props> = ({spotifyStreamingData, o
                 ))
             }
             <StatusBar currentDate={currentDate} maxArtist={maxArtist} width={width} onExit={onExit} />
-            <BottomBar width={width} top={height - 30} onDelete={onDelete} />
         </div>
     );
 };
@@ -219,28 +217,6 @@ const StatusBar: FunctionComponent<{currentDate: string | null, maxArtist: strin
             <span style={{color: colorForArtist(maxArtist)}}>
                 {maxArtist}
             </span>
-        </div>
-    )
-}
-
-const BottomBar: FunctionComponent<{width: number, top: number, onDelete: () => void}> = ({width, top, onDelete}) => {
-    return (
-        <div style={{
-            position: 'absolute',
-            top: top,
-            left: 0,
-            width,
-            height: 30,
-            background: 'black',
-            color: 'white',
-            fontSize: 20,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-        }}>
-            <a href="#" onClick={() => window.location.reload()}>reload</a>
-            &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-            <a href="#" onClick={onDelete}>delete</a>
         </div>
     )
 }

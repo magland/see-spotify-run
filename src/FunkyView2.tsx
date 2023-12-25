@@ -10,15 +10,16 @@ import { TimeFilter, timeFilterIncludes } from "./MainWindow";
 type FunkyView2Props = {
     spotifyStreamingData: SpotifyStreamingData;
     onTimeFilterChanged: (timeFilter: TimeFilter) => void;
+    onDelete: () => void;
     onBlastOff: () => void;
 };
 
 export type MonthTimeFilter = {
     use: boolean;
     beginMonth: number; // 1-12
-    beginYear: number; // 2015-2021
+    beginYear: number;
     endMonth: number; // 1-12
-    endYear: number; // 2015-2021
+    endYear: number;
 }
 
 const monthTimeFilterToTimeFilter = (monthTimeFilter: MonthTimeFilter): TimeFilter => {
@@ -44,7 +45,7 @@ const correctMonthTimeFilter = (monthTimeFilter: MonthTimeFilter): MonthTimeFilt
     return monthTimeFilter;
 }
 
-const FunkyView2: FunctionComponent<FunkyView2Props> = ({spotifyStreamingData, onTimeFilterChanged, onBlastOff}) => {
+const FunkyView2: FunctionComponent<FunkyView2Props> = ({spotifyStreamingData, onTimeFilterChanged, onBlastOff, onDelete}) => {
     const {width, height} = useWindowDimensions();
     const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
     const [monthTimeFilter, setMonthTimeFilter] = useState<MonthTimeFilter>({use: false, beginMonth: 1, beginYear: 2023, endMonth: 12, endYear: 2023}); // will be set in useEffect below
@@ -75,7 +76,7 @@ const FunkyView2: FunctionComponent<FunkyView2Props> = ({spotifyStreamingData, o
     return (
         <div style={{position: 'absolute', width, height}}>
             <div style={{position: 'absolute', top: 0, left: 0, width, height: topBarHeight, backgroundColor: 'black', color: 'white'}}>
-                <TopBar monthTimeFilter={monthTimeFilter} onMonthTimeFilterChanged={setMonthTimeFilter} totalRangeMonthTimeFilter={totalRangeMonthTimeFilter} onBlastOff={onBlastOff} />
+                <TopBar monthTimeFilter={monthTimeFilter} onMonthTimeFilterChanged={setMonthTimeFilter} totalRangeMonthTimeFilter={totalRangeMonthTimeFilter} onBlastOff={onBlastOff} onDelete={onDelete} />
             </div>
             <div style={{position: 'absolute', top: topBarHeight, left: 0, width, height: height - topBarHeight, backgroundColor: 'white', color: 'black'}}>
                 <Splitter
@@ -130,6 +131,7 @@ const RightSection: FunctionComponent<RightSectionProps> = ({width, height, spot
                 height={0}
                 spotifyStreamingData={spotifyStreamingData}
                 selectedSongs={selectedSongs}
+                selectedArtists={selectedArtists}
             />
         </Splitter>
     )
@@ -140,9 +142,10 @@ type TopBarProps = {
     onMonthTimeFilterChanged: (monthTimeFilter: MonthTimeFilter) => void;
     totalRangeMonthTimeFilter: MonthTimeFilter;
     onBlastOff: () => void;
+    onDelete: () => void;
 };
 
-const TopBar: FunctionComponent<TopBarProps> = ({monthTimeFilter, onMonthTimeFilterChanged, totalRangeMonthTimeFilter, onBlastOff}) => {
+const TopBar: FunctionComponent<TopBarProps> = ({monthTimeFilter, onMonthTimeFilterChanged, totalRangeMonthTimeFilter, onBlastOff, onDelete}) => {
     const allMonthChoices: {month: number, year: number}[] = useMemo(() => {
         const choices: {month: number, year: number}[] = [];
         for (let year = totalRangeMonthTimeFilter.beginYear; year <= totalRangeMonthTimeFilter.endYear; year++) {
@@ -184,6 +187,8 @@ const TopBar: FunctionComponent<TopBarProps> = ({monthTimeFilter, onMonthTimeFil
             }
             &nbsp;&nbsp;&nbsp;
             <Hyperlink onClick={onBlastOff} color="white">Blast Off</Hyperlink>
+            &nbsp;&nbsp;&nbsp;
+            <Hyperlink onClick={onDelete} color="white">Clear Data</Hyperlink>
         </div>
     )
 }

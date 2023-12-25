@@ -10,6 +10,7 @@ export type TimeFilter = {
   endDate: string; // YYYY-MM-DD
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const timeFilterIncludes = (timeFilter: TimeFilter, date: string) => {
   if (!timeFilter.use) {
       return true;
@@ -44,32 +45,54 @@ const MainWindow: FunctionComponent = () => {
   const [mode, setMode] = useState<'funky-view-1' | 'funky-view-2'>('funky-view-2');
 
   const handleUpload = useCallback(() => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result;
-          if (typeof result === "string") {
-            let data
-            try {
-              data = JSON.parse(result);
-            }
-            catch (e) {
-              console.error(e);
-              console.warn('Problem parsing spotify data from file')
-            }
-            localStorage.setItem("spotifyData", JSON.stringify(data));
-            setSpotifyStreamingData(data);
-          }
-        };
-        reader.readAsText(file);
+    uploadMultipleJsonFiles((objects => {
+      const allListens = []
+      for (const obj of objects) {
+        for (const listen of obj) {
+          allListens.push(listen);
+        }
       }
-    };
-    input.click();
+      allListens.sort((a, b) => {
+        if (a.endTime < b.endTime) {
+          return -1;
+        }
+        else if (a.endTime > b.endTime) {
+          return 1;
+        }
+        else {
+          return 0;
+        }
+      });
+      localStorage.setItem("spotifyData", JSON.stringify(allListens));
+      setSpotifyStreamingData(allListens);
+    }))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function uploadMultipleJsonFiles(onLoaded: (objects: any[]) => void) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.accept = '.json';
+      input.onchange = () => {
+        const files = input.files;
+        if (!files) {
+          return;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const objects: any[] = [];
+        for (const file of files) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const obj = JSON.parse(reader.result as string);
+            objects.push(obj);
+            if (objects.length === files.length) {
+              onLoaded(objects);
+            }
+          };
+          reader.readAsText(file);
+        }
+      };
+      input.click();
+    }
   }, []);
 
   const handleDelete = useCallback(() => {
@@ -106,12 +129,12 @@ const MainWindow: FunctionComponent = () => {
 
   if (mode === 'funky-view-2') {
     return (
-      <FunkyView2 spotifyStreamingData={spotifyStreamingData} onTimeFilterChanged={setTimeFilter} onBlastOff={() => setMode('funky-view-1')} />
+      <FunkyView2 spotifyStreamingData={spotifyStreamingData} onTimeFilterChanged={setTimeFilter} onDelete={handleDelete} onBlastOff={() => setMode('funky-view-1')} />
     );
   }
   else {
     return (
-      spotifyStreamingDataFiltered ? <FunkyView1 spotifyStreamingData={spotifyStreamingDataFiltered} onDelete={handleDelete} onExit={handleExit} /> : <span />
+      spotifyStreamingDataFiltered ? <FunkyView1 spotifyStreamingData={spotifyStreamingDataFiltered} onExit={handleExit} /> : <span />
     )
   }
 };

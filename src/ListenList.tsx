@@ -7,12 +7,21 @@ type ListenListProps = {
     height: number;
     spotifyStreamingData: SpotifyStreamingData;
     selectedSongs: string[];
+    selectedArtists: string[];
 };
 
-const ListenList: FunctionComponent<ListenListProps> = ({spotifyStreamingData, width, height, selectedSongs}) => {
+const ListenList: FunctionComponent<ListenListProps> = ({spotifyStreamingData, width, height, selectedSongs, selectedArtists}) => {
     const listens = useMemo(() => {
-        return spotifyStreamingData.filter((item) => selectedSongs.includes(item.artistName + '|' + item.trackName));
-    }, [spotifyStreamingData, selectedSongs]);
+        if (selectedSongs.length > 0) {
+            return spotifyStreamingData.filter((item) => selectedSongs.includes(item.artistName + '|' + item.trackName));
+        }
+        else if (selectedArtists.length > 0) {
+            return spotifyStreamingData.filter((item) => selectedArtists.includes(item.artistName));
+        }
+        else {
+            return []
+        }
+    }, [spotifyStreamingData, selectedSongs, selectedArtists]);
     const items = useMemo(() => {
         return listens.map((listen, i) => ({
             id: `${i}`,
