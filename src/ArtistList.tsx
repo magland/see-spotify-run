@@ -21,7 +21,9 @@ const ArtistList: FunctionComponent<ArtistListProps> = ({spotifyStreamingData, w
     const artistCounts = useMemo(() => {
         const theMap = new Map<string, number>();
         for (const item of spotifyStreamingData) {
-            theMap.set(item.artistName, (theMap.get(item.artistName) ?? 0) + 1);
+            if (item.msPlayed >= 1000 * 10) { // only count it if it was played for at least 10 seconds
+                theMap.set(item.artistName, (theMap.get(item.artistName) ?? 0) + 1);
+            }
         }
         return theMap;
     }, [spotifyStreamingData]);

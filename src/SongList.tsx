@@ -25,7 +25,9 @@ const SongList: FunctionComponent<SongListProps> = ({spotifyStreamingData, width
         const theMap = new Map<string, number>();
         for (const item of spotifyStreamingData) {
             if (selectedArtists.length === 0 || selectedArtists.includes(item.artistName)) {
-                theMap.set(item.artistName + '|' + item.trackName, (theMap.get(item.artistName + '|' + item.trackName) ?? 0) + 1);
+                if (item.msPlayed >= 1000 * 10) { // only count it if it was played for at least 10 seconds
+                    theMap.set(item.artistName + '|' + item.trackName, (theMap.get(item.artistName + '|' + item.trackName) ?? 0) + 1);
+                }
             }
         }
         return theMap;
