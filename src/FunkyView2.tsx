@@ -6,6 +6,7 @@ import ArtistList from "./ArtistList";
 import SongList from "./SongList";
 import ListenList from "./ListenList";
 import { TimeFilter, timeFilterIncludes } from "./MainWindow";
+import ListenPlot from "./ListenPlot";
 
 type FunkyView2Props = {
     spotifyStreamingData: SpotifyStreamingData;
@@ -46,8 +47,8 @@ const correctMonthTimeFilter = (monthTimeFilter: MonthTimeFilter): MonthTimeFilt
 }
 
 const FunkyView2: FunctionComponent<FunkyView2Props> = ({spotifyStreamingData, onTimeFilterChanged, onBlastOff, onDelete}) => {
-    const {width, height} = useWindowDimensions();
     const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
+    const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
     const [monthTimeFilter, setMonthTimeFilter] = useState<MonthTimeFilter>({use: false, beginMonth: 1, beginYear: 2023, endMonth: 12, endYear: 2023}); // will be set in useEffect below
     const timeFilter = useMemo(() => monthTimeFilterToTimeFilter(monthTimeFilter), [monthTimeFilter]);
     useEffect(() => {
@@ -56,7 +57,6 @@ const FunkyView2: FunctionComponent<FunkyView2Props> = ({spotifyStreamingData, o
             setMonthTimeFilter(newMonthTimeFilter);
         }
     }, [monthTimeFilter]);
-    const topBarHeight = 28;
     const spotifyStreamingDataFiltered = useMemo(() => (
         spotifyStreamingData.filter((item) => timeFilterIncludes(timeFilter, item.endTime))
     ), [spotifyStreamingData, timeFilter])
@@ -73,6 +73,56 @@ const FunkyView2: FunctionComponent<FunkyView2Props> = ({spotifyStreamingData, o
     useEffect(() => {
         onTimeFilterChanged(timeFilter);
     }, [timeFilter, onTimeFilterChanged]);
+    const {width, height} = useWindowDimensions();
+    return (
+        <Splitter
+            direction="vertical"
+            width={width}
+            height={height}
+            initialPosition={height * 2 / 3}
+        >
+            <FunkyView2Top
+                width={0}
+                height={0}
+                monthTimeFilter={monthTimeFilter}
+                setMonthTimeFilter={setMonthTimeFilter}
+                totalRangeMonthTimeFilter={totalRangeMonthTimeFilter}
+                spotifyStreamingDataFiltered={spotifyStreamingDataFiltered}
+                onBlastOff={onBlastOff}
+                onDelete={onDelete}
+                selectedArtists={selectedArtists}
+                setSelectedArtists={setSelectedArtists}
+                selectedSongs={selectedSongs}
+                setSelectedSongs={setSelectedSongs}
+            />
+            <ListenPlot
+                width={0}
+                height={0}
+                spotifyStreamingDataFiltered={spotifyStreamingDataFiltered}
+                selectedArtists={selectedArtists}
+                selectedSongs={selectedSongs}
+            />
+        </Splitter>
+    )
+}
+
+type FunkyView2TopProps = {
+    width: number;
+    height: number;
+    monthTimeFilter: MonthTimeFilter;
+    setMonthTimeFilter: (monthTimeFilter: MonthTimeFilter) => void;
+    totalRangeMonthTimeFilter: MonthTimeFilter;
+    spotifyStreamingDataFiltered: SpotifyStreamingData;
+    onBlastOff: () => void;
+    onDelete: () => void;
+    selectedArtists: string[];
+    setSelectedArtists: (selectedArtists: string[]) => void;
+    selectedSongs: string[];
+    setSelectedSongs: (selectedSongs: string[]) => void;
+}
+
+const FunkyView2Top: FunctionComponent<FunkyView2TopProps> = ({width, height, monthTimeFilter, setMonthTimeFilter, totalRangeMonthTimeFilter, spotifyStreamingDataFiltered, onBlastOff, onDelete, selectedArtists, setSelectedArtists, selectedSongs, setSelectedSongs}) => {
+    const topBarHeight = 28;
     return (
         <div style={{position: 'absolute', width, height}}>
             <div style={{position: 'absolute', top: 0, left: 0, width, height: topBarHeight, backgroundColor: 'black', color: 'white'}}>
@@ -96,6 +146,8 @@ const FunkyView2: FunctionComponent<FunkyView2Props> = ({spotifyStreamingData, o
                         height={0}
                         spotifyStreamingData={spotifyStreamingDataFiltered}
                         selectedArtists={selectedArtists}
+                        selectedSongs={selectedSongs}
+                        setSelectedSongs={setSelectedSongs}
                     />
                 </Splitter>
             </div>
@@ -108,10 +160,11 @@ type RightSectionProps = {
     height: number;
     spotifyStreamingData: SpotifyStreamingData;
     selectedArtists: string[];
+    selectedSongs: string[];
+    setSelectedSongs: (selectedSongs: string[]) => void;
 };
 
-const RightSection: FunctionComponent<RightSectionProps> = ({width, height, spotifyStreamingData, selectedArtists}) => {
-    const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
+const RightSection: FunctionComponent<RightSectionProps> = ({width, height, spotifyStreamingData, selectedArtists, selectedSongs, setSelectedSongs}) => {
     return (
         <Splitter
             width={width}
