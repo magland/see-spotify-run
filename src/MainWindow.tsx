@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import SpotifyStreamingData from "./SpotifyStreamingData";
+import SpotifyStreamingData, { ExtendedSpotifyStreamingDataRecord, SpotifyStreamingDataRecord } from "./SpotifyStreamingData";
 import FunkyView1 from "./FunkyView1";
 import { useWindowDimensions } from "@fi-sci/misc";
 import FunkyView2 from "./FunkyView2";
@@ -46,10 +47,13 @@ const MainWindow: FunctionComponent = () => {
 
   const handleUpload = useCallback(() => {
     uploadMultipleJsonFiles((objects => {
-      const allListens = []
+      const allListens: SpotifyStreamingDataRecord[] = []
       for (const obj of objects) {
         for (const listen of obj) {
-          allListens.push(listen);
+          const convertedRecord = convertRecord(listen)
+          if (convertedRecord) {
+            allListens.push(convertedRecord);
+          }
         }
       }
       allListens.sort((a, b) => {
@@ -138,5 +142,35 @@ const MainWindow: FunctionComponent = () => {
     )
   }
 };
+
+const convertRecord = (record: any): SpotifyStreamingDataRecord | undefined => {
+  if (!record) {
+    return undefined;
+  }
+  else if (typeof record !== 'object') {
+    return undefined
+  }
+  else if (record.msPlayed) {
+    return record as SpotifyStreamingDataRecord;
+  }
+  else if (record.ms_played) {
+    const x = record as ExtendedSpotifyStreamingDataRecord;
+    const ret: SpotifyStreamingDataRecord = {
+      endTime: convertTimestamp(x.ts),
+      artistName: x.master_metadata_album_artist_name,
+      trackName: x.master_metadata_track_name,
+      msPlayed: x.ms_played,
+    };
+    return ret
+  }
+  else {
+    return undefined;
+  }
+}
+
+const convertTimestamp = (ts: string) => {
+  // 2022-06-17T19:53:06Z -> 2022-06-17 19:53
+  return ts.replace('T', ' ').replace('Z', '').split(':').slice(0, 2).join(':');
+}
 
 export default MainWindow;

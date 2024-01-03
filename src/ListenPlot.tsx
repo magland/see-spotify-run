@@ -1,7 +1,7 @@
 import { FunctionComponent, useMemo, useState } from "react";
 import SpotifyStreamingData from "./SpotifyStreamingData";
 import Plot from 'react-plotly.js';
-import { Data, PlotType } from "plotly.js";
+import { PlotType } from "plotly.js";
 
 type ListenPlotProps = {
     width: number;
