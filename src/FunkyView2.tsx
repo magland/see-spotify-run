@@ -60,6 +60,18 @@ const FunkyView2: FunctionComponent<FunkyView2Props> = ({spotifyStreamingData, o
     const spotifyStreamingDataFiltered = useMemo(() => (
         spotifyStreamingData.filter((item) => timeFilterIncludes(timeFilter, item.endTime))
     ), [spotifyStreamingData, timeFilter])
+    useEffect(() => {
+        // if there are selected artists, make sure that we unselect any songs that are not by those artists
+        if (selectedArtists.length > 0) {
+            const newSelectedSongs = selectedSongs.filter((song) => {
+                const artist = song.split('|')[0];
+                return selectedArtists.includes(artist);
+            });
+            if (newSelectedSongs.length !== selectedSongs.length) {
+                setSelectedSongs(newSelectedSongs);
+            }
+        }
+    }, [selectedArtists, selectedSongs]);
     const totalRangeMonthTimeFilter = useMemo(() => {
         const beginYear = Math.min(...spotifyStreamingData.map((item) => parseInt(item.endTime.split('-')[0])));
         const endYear = Math.max(...spotifyStreamingData.map((item) => parseInt(item.endTime.split('-')[0])));
